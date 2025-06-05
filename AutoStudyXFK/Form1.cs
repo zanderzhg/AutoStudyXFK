@@ -105,8 +105,8 @@ namespace AutoStudyXFK
 
         public void RefreshCaptcha()
         {
-            Global.LoginCookie = NutWeb.Nut_Get("http://xxpt.scxfks.com/study/login", null).Cookie;
-            var img = NutWeb.Nut_GetImage("http://xxpt.scxfks.com/study/captcha", Global.LoginCookie);
+            Global.LoginCookie = NutWeb.Nut_Get("http://www.scxfks.com/study/login", null).Cookie;
+            var img = NutWeb.Nut_GetImage("http://www.scxfks.com/study/captcha", Global.LoginCookie);
 
             //方法1
             pictureBox1.Image = new HttpHelpers().GetImg(img);

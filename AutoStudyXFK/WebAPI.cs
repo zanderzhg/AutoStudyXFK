@@ -22,7 +22,7 @@ namespace AutoStudyXFK
     {
         public static User GetInfo(User user)
         {
-            var url = "http://xxpt.scxfks.com/study/index";
+            var url = "http://www.scxfks.com/study/index";
             var getResult = NutWeb.Nut_Get(url, null, user.Cookie);
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(getResult.Html);
@@ -35,10 +35,10 @@ namespace AutoStudyXFK
                 return user;
             }
 
-            user.Name = Global.TextGainCenter("\n                    ", " ID:", infoNode.InnerText);
-            user.ID = Global.TextGainCenter("ID:", "\n                    \n", infoNode.InnerText);
-            var scoreNode = doc.DocumentNode.SelectSingleNode("//div[@class='card schedule pull-left ksico']/div[1]");
-            user.Score = scoreNode.InnerText.Replace("当前学分：", "");
+            user.Name = Global.TextGainCenter("姓名：", "\n                    学员ID", infoNode.InnerText);
+            user.ID = Global.TextGainCenter("ID：", "\n                    学分", infoNode.InnerText);
+            //var scoreNode = doc.DocumentNode.SelectSingleNode("//div[@class='card schedule pull-left ksico']/div[1]");
+            user.Score = Global.TextGainCenter("学分累计：", "学分\n                                            测评", infoNode.InnerText);
             user.TodayScore = GetTodayScore(user.Cookie);
             user.TodayAnswer = GetTodayAnswer(user.Cookie);
             return user;
@@ -51,8 +51,8 @@ namespace AutoStudyXFK
             {
                 Form1.MainForm.NutDebug("开始尝试登录账号:" + ID + "  密码：" + PassWord);
 
-                Global.LoginCookie = NutWeb.Nut_Get("http://xxpt.scxfks.com/study/login", null).Cookie;
-                var img = NutWeb.Nut_GetImage("http://xxpt.scxfks.com/study/captcha", Global.LoginCookie);
+                Global.LoginCookie = NutWeb.Nut_Get("http://www.scxfks.com/study/login", null).Cookie;
+                var img = NutWeb.Nut_GetImage("http://www.scxfks.com/study/captcha", Global.LoginCookie);
 
                 //方法1
                 var img_t = new HttpHelpers().GetImg(img);
@@ -74,7 +74,7 @@ namespace AutoStudyXFK
 
 
                 var t_PassWord = Global.GenerateMD5(PassWord + "gw-gd-exam").ToUpper();
-                var url = @"http://xxpt.scxfks.com/study/session";
+                var url = @"http://www.scxfks.com/study/session";
                 var data = "{\"mobile\":\"" + ID + "\",\"password\":\"" + t_PassWord + "\",\"captcha\":\"" + Result + "\"}";
                 r = NutWeb.Nut_Post(url, data, Global.LoginCookie, null);
                 Form1.MainForm.NutDebug(r.Html);
@@ -95,7 +95,7 @@ namespace AutoStudyXFK
 
         public static float GetTodayScore(String Cookie)
         {
-            var url = "http://xxpt.scxfks.com/study/profile/learnLogs";
+            var url = "http://www.scxfks.com/study/profile/learnLogs";
             var getResult = NutWeb.Nut_Get(url, null, Cookie);
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(getResult.Html);
@@ -127,7 +127,7 @@ namespace AutoStudyXFK
 
         public static int GetTodayAnswer(String Cookie)
         {
-            var url = "http://xxpt.scxfks.com/study/profile/activityScores";
+            var url = "http://www.scxfks.com/study/profile/activityScores";
             var getResult = NutWeb.Nut_Get(url, null, Cookie);
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(getResult.Html);
@@ -163,7 +163,7 @@ namespace AutoStudyXFK
         public static string Login(String ID, String PassWord, string captcha)
         {
             PassWord = Global.GenerateMD5(PassWord + "gw-gd-exam").ToUpper();
-            var url = @"http://xxpt.scxfks.com/study/session";
+            var url = @"http://www.scxfks.com/study/session";
             var data = "{\"mobile\":\"" + ID + "\",\"password\":\"" + PassWord + "\",\"captcha\":\"" + captcha + "\"}";
             var postresulet = NutWeb.Nut_Post(url, data, Global.LoginCookie, null);
             Form1.MainForm.NutDebug(postresulet.Html);
@@ -173,7 +173,7 @@ namespace AutoStudyXFK
         public static void StartStudy(String Cookie)
         {
             //List<string> courseId = new List<string>();
-            var url = "http://xxpt.scxfks.com/study/index";
+            var url = "http://www.scxfks.com/study/courses/year";
             var getResult = NutWeb.Nut_Get(url, null, Cookie);
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(getResult.Html);
@@ -191,7 +191,7 @@ namespace AutoStudyXFK
                 var atb = nav.GetAttributeValue("atb", "");
                 //Form1.MainForm.NutDebug(cl+"  "+atb);
 
-                var t_url = @"http://xxpt.scxfks.com/study/selectCourse/" + cl + "/" + atb + "/51";
+                var t_url = @"http://www.scxfks.com/study/selectCourse/" + cl + "/" + atb + "/51";
                 var Result = NutWeb.Nut_Get(t_url, null, Cookie);
                 var JsonObj = (JArray)JsonConvert.DeserializeObject(Result.Html);
 
@@ -205,7 +205,7 @@ namespace AutoStudyXFK
                     {
                         //进入课程
                         var courseId = T_J["courseId"].ToString();
-                        var c_url = @"http://xxpt.scxfks.com/study/course/" + courseId;
+                        var c_url = @"http://www.scxfks.com/study/course/" + courseId;
                         var c_getResult = NutWeb.Nut_Get(c_url, null, Cookie);
                         HtmlDocument c_doc = new HtmlDocument();
                         c_doc.LoadHtml(c_getResult.Html);
@@ -227,14 +227,14 @@ namespace AutoStudyXFK
 
                                     var id_att = herf.GetAttributeValue("onclick", "");
                                     var id = Global.TextGainCenter(",", ");", id_att);
-                                    s_url = "http://xxpt.scxfks.com/study/exercise/" + id;
+                                    s_url = "http://www.scxfks.com/study/exercise/" + id;
                                     //生成题库
-                                    NutWeb.Nut_Post("http://xxpt.scxfks.com/study/exerciseBuild/" + courseId + "/chapter/" + id, "", Cookie, null);
+                                    NutWeb.Nut_Post("http://www.scxfks.com/study/exerciseBuild/" + courseId + "/chapter/" + id, "", Cookie, null);
 
                                 }
                                 else
                                 {
-                                    s_url = "http://xxpt.scxfks.com" + Link;
+                                    s_url = "http://www.scxfks.com" + Link;
                                 }
 
                                 Form1.MainForm.NutDebug(s_url);
@@ -250,7 +250,7 @@ namespace AutoStudyXFK
                                         Form1.MainForm.NutDebug("学习完毕");
                                         return;
                                     }
-                                    var p_url = "http://xxpt.scxfks.com/study/learnlog/" + c_id + "/" + cl;
+                                    var p_url = "http://www.scxfks.com/study/learnlog/" + c_id + "/" + cl;
                                     var p_r = NutWeb.Nut_Post(p_url, "", Cookie, null);
                                     Form1.MainForm.NutDebug(p_r.Html);
                                 }
@@ -282,7 +282,7 @@ namespace AutoStudyXFK
                                     P_Data = P_Data.Substring(0, P_Data.Length - 1);
                                     Form1.MainForm.NutDebug(P_Data);
 
-                                    var p_url = "http://xxpt.scxfks.com/study/submitExercise/" + c_id + "/" + cl;
+                                    var p_url = "http://www.scxfks.com/study/submitExercise/" + c_id + "/" + cl;
                                     var post_result = NutWeb.Nut_Post(p_url, P_Data, Cookie, null);
                                     if (post_result.Html.Contains("枩鑾峰緱婊"))
                                     {
@@ -308,7 +308,7 @@ namespace AutoStudyXFK
         public static bool StartAnswer(String Cookie)
         {
 
-            string Url = "http://xxpt.scxfks.com/study/activity/score";
+            string Url = "http://www.scxfks.com/study/activity/score";
             string PostData = "id=20&correctAnswerNum=5";
             var PostResult = NutWeb.Nut_Post(Url, PostData, Cookie, null);
             if (PostResult != null)
@@ -323,7 +323,7 @@ namespace AutoStudyXFK
         public static void GetPracticeAnswer(String Cookie)
         {
             //List<string> courseId = new List<string>();
-            var url = "http://xxpt.scxfks.com/study/index";
+            var url = "http://www.scxfks.com/study/index";
             var getResult = NutWeb.Nut_Get(url, null, Cookie);
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(getResult.Html);
@@ -341,7 +341,7 @@ namespace AutoStudyXFK
                 var atb = nav.GetAttributeValue("atb", "");
                 //Form1.MainForm.NutDebug(cl+"  "+atb);
 
-                var t_url = @"http://xxpt.scxfks.com/study/selectCourse/" + cl + "/" + atb + "/51";
+                var t_url = @"http://www.scxfks.com/study/selectCourse/" + cl + "/" + atb + "/51";
                 var Result = NutWeb.Nut_Get(t_url, null, Cookie);
                 var JsonObj = (JArray)JsonConvert.DeserializeObject(Result.Html);
 
@@ -354,7 +354,7 @@ namespace AutoStudyXFK
 
                     //进入课程
                     var courseId = T_J["courseId"].ToString();
-                    var c_url = @"http://xxpt.scxfks.com/study/course/" + courseId;
+                    var c_url = @"http://www.scxfks.com/study/course/" + courseId;
                     var c_getResult = NutWeb.Nut_Get(c_url, null, Cookie);
                     HtmlDocument c_doc = new HtmlDocument();
                     c_doc.LoadHtml(c_getResult.Html);
@@ -376,14 +376,14 @@ namespace AutoStudyXFK
 
                                 var id_att = herf.GetAttributeValue("onclick", "");
                                 var id = Global.TextGainCenter(",", ");", id_att);
-                                s_url = "http://xxpt.scxfks.com/study/exercise/" + id;
+                                s_url = "http://www.scxfks.com/study/exercise/" + id;
                                 //生成题库
-                                NutWeb.Nut_Post("http://xxpt.scxfks.com/study/exerciseBuild/" + courseId + "/chapter/" + id, "", Cookie, null);
+                                NutWeb.Nut_Post("http://www.scxfks.com/study/exerciseBuild/" + courseId + "/chapter/" + id, "", Cookie, null);
 
                             }
                             else
                             {
-                                s_url = "http://xxpt.scxfks.com" + Link;
+                                s_url = "http://www.scxfks.com" + Link;
                             }
 
                             Form1.MainForm.NutDebug(s_url);
